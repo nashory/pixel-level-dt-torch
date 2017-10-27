@@ -4,6 +4,7 @@ require 'optim'
 require 'data'
 
 
+
 opt = {
    dataset = 'folder',      
    batchSize = 128,
@@ -23,8 +24,9 @@ opt = {
    noise = 'normal',       -- uniform / normal
    optimizer = 'sgd', 
    load_cp = 0,
-   display_every = 2,      -- dispay every X iterations
-   logging_every = 1,       -- log every X iteartions
+   display_every = 5,      -- dispay every X iterations
+   logging_every = 1,      -- log every X iteartions
+   save_png_every = 10,    -- save png files every X iterations 
 }
 
 
@@ -320,6 +322,23 @@ local fGx = function(x)
    return errG, gradParametersG:mul(1/2)
 end
 
+-- utility functions
+local function grid_png(nsample, imsize, img_arr, iter)
+    os.execute('mkdir -p save')
+    png_grid = torch.Tensor(3, nsample*imsize*3, nsample*imsize*3):zero()
+    cnt = 1
+    for h = 1, imsize*nsample*3, imsize*3 do
+        for w = 1, imsize*nsample*3, imsize do
+            --print(png_grid[{{},{h,h+imsize*3-1},{w, w+imsize-1}}]:size())
+            --print(img_arr[{{cnt},{},{},{}}]:size())
+            --print(img_arr[{{cnt},{},{},{}}]:squeeze())
+            png_grid[{{},{h,h+imsize*3-1},{w, w+imsize-1}}]:copy(img_arr[{{cnt},{},{},{}}]:squeeze())
+            cnt = cnt+1
+        end
+    end
+    image.save(string.format('save/%d.jpg', iter), png_grid)
+end
+
 if opt.display then 
     disp = require 'display' 
     disp.configure({hostname='10.64.81.227', port=8888})
@@ -365,9 +384,17 @@ for epoch = 1, opt.nTotalEpoch do
         -- logging
         if g_cnt % opt.logging_every == 0 then
             print(string.format('Epoch: [%d][%8d/%8d] | Time: %.3f | DataTime:%.3f | Err_G: %.4f | Err_D: %.4f | Err_A: %.4f', epoch, i, trainlen, tm:time().real, data_tm:time().real, errG and errG or -1, errD and errD or -1, errA and errA or -1))
-            table.insert(result, {globalCnt, errD, errG, errA})
+            table.insert(result, {g_cnt, errD, errG, errA})
             disp.plot(result, disp_config)
         end
+        -- save png
+        if g_cnt %  opt.save_png_every == 0 then
+            local fake = netG:forward(input_img)
+            local real = ass_label
+            img_arr = torch.cat(fake,real,3):cat(input_img,3)
+            grid_png(3, 128, img_arr, i)
+        end
+        
     end
     paths.mkdir('checkpoints')
     parametersD, gradParametersD = nil, nil -- nil them to avoid spiking memory
@@ -382,5 +409,6 @@ for epoch = 1, opt.nTotalEpoch do
     print(('End of epoch %d / %d \t Time Taken: %.3f'):format(
             epoch, opt.niter, epoch_tm:time().real))
 end
+
 
 
