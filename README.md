@@ -30,6 +30,5 @@ to be updated...
 
 
 ## Author
-# Author
 MinchulShin / [@nashory](https://github.com/nashory)
 __Any insane bug reports or questions are welcome. (min.stellastra[at]gmail.com)  :-)__
