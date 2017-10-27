@@ -1,7 +1,9 @@
 # pixel-level-dt-torch
 Torch implementation of "[Pixel-Level Domain Transfer](https://arxiv.org/pdf/1603.07442)", bug-fixed version of [repo](https://github.com/fxia22/PixelDTGAN)
 
-## Note (important):
+![image](https://puu.sh/y8eZp/53c12325b2.png)
+
+## Note (IMPORTANT):
 + I found too many bugs in the [original repo](https://github.com/fxia22/PixelDTGAN), and the code was not running.
 + Finally, I decided to release __bug-fixed__ version of "[Pixel-Level Domain Transfer](https://arxiv.org/pdf/1603.07442)" with enhanced features.
 + The majority of the codes were brought from [original repo](https://github.com/fxia22/PixelDTGAN).
