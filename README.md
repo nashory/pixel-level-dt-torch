@@ -11,11 +11,17 @@ Torch implementation of "[Pixel-Level Domain Transfer](https://arxiv.org/pdf/160
 + The input size has been changed from 64 x 64 to 128 x 128.
 + Network structure was slightly modified.
 
+## Prerequisites
++ [Torch7](http://torch.ch/docs/getting-started.html#_)
++ [display](https://github.com/szym/display)
+
+
 ## How to run?
+to be updated...
 
 
 ## Experimental Results
-
+to be updated...
 
 
 
