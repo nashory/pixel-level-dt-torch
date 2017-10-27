@@ -329,14 +329,11 @@ local function grid_png(nsample, imsize, img_arr, iter)
     cnt = 1
     for h = 1, imsize*nsample*3, imsize*3 do
         for w = 1, imsize*nsample*3, imsize do
-            --print(png_grid[{{},{h,h+imsize*3-1},{w, w+imsize-1}}]:size())
-            --print(img_arr[{{cnt},{},{},{}}]:size())
-            --print(img_arr[{{cnt},{},{},{}}]:squeeze())
             png_grid[{{},{h,h+imsize*3-1},{w, w+imsize-1}}]:copy(img_arr[{{cnt},{},{},{}}]:add(1):div(2):squeeze())
             cnt = cnt+1
         end
     end
-    image.save(string.format('save/%d.jpg', iter), png_grid)
+    image.save(string.format('save/%d.jpg', iter/opt.save_png_every), png_grid)
 end
 
 if opt.display then 
