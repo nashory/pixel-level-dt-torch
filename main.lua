@@ -332,7 +332,7 @@ local function grid_png(nsample, imsize, img_arr, iter)
             --print(png_grid[{{},{h,h+imsize*3-1},{w, w+imsize-1}}]:size())
             --print(img_arr[{{cnt},{},{},{}}]:size())
             --print(img_arr[{{cnt},{},{},{}}]:squeeze())
-            png_grid[{{},{h,h+imsize*3-1},{w, w+imsize-1}}]:copy(img_arr[{{cnt},{},{},{}}]:squeeze())
+            png_grid[{{},{h,h+imsize*3-1},{w, w+imsize-1}}]:copy(img_arr[{{cnt},{},{},{}}]:add(1):div(2):squeeze())
             cnt = cnt+1
         end
     end
