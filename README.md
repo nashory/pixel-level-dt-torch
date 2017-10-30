@@ -23,7 +23,9 @@ to be updated...
 
 
 ## Experimental Results
-to be updated...
+Result so far (it is stil being trained at this moment.)
+![image](https://puu.sh/yalEx/7313f3ede6.png)
+![image](https://puu.sh/yalFF/d5aa3ac205.jpg)
 
 
 
