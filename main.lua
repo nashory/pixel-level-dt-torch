@@ -8,8 +8,7 @@ require 'data'
 opt = {
    dataset = 'folder',      
    batchSize = 128,
-   loadSize = 128,
-   fineSize = 128,
+   loadSize = 64,
    ngf = 96,               -- #  of gen filters in first conv layer
    ndf = 96,               -- #  of discrim filters in first conv layer
    nThreads = 4,           -- #  of data loading threads to use
@@ -19,14 +18,17 @@ opt = {
    ntrain = math.huge,     -- #  of examples per epoch. math.huge for full dataset
    display = 1,            -- display samples while training. 0 = false
    display_id = 10,        -- display window id.
-   gpu = 1,                -- gpu = 0 is CPU mode. gpu=X is GPU mode on GPU X
-   name = 'experiment1',
+   gpu = 0,                -- gpu = -1 is CPU mode. gpu=X is GPU mode on GPU X (starts from index 0)
+   name = 'exp1',
    noise = 'normal',       -- uniform / normal
    optimizer = 'sgd', 
    load_cp = 0,
    display_every = 5,      -- dispay every X iterations
    logging_every = 1,      -- log every X iteartions
-   save_png_every = 10,    -- save png files every X iterations 
+   save_png_every = 10,    -- save png files every X iterations
+
+   display_ip = '10.108.23.11',
+   display_port = 8889,
 }
 
 
@@ -79,9 +81,11 @@ netG:add(SpatialBatchNormalization(ngf * 2)):add(nn.LeakyReLU(0.2, true))
 netG:add(SpatialConvolution(ngf*2, ngf * 4, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ngf * 4)):add(nn.LeakyReLU(0.2, true))
 -- state size: (ngf*4) x 16 x 16
-netG:add(SpatialConvolution(ngf * 4, ngf * 4, 4, 4, 2, 2, 1, 1))
-netG:add(SpatialBatchNormalization(ngf * 4)):add(nn.LeakyReLU(0.2, true))
--- state size: (ngf*4) x 8 x 8
+if opt.loadSize==128 then
+    netG:add(SpatialConvolution(ngf * 4, ngf * 4, 4, 4, 2, 2, 1, 1))
+    netG:add(SpatialBatchNormalization(ngf * 4)):add(nn.LeakyReLU(0.2, true))
+    -- state size: (ngf*4) x 8 x 8
+end
 netG:add(SpatialConvolution(ngf * 4, ngf * 8, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ngf * 8)):add(nn.LeakyReLU(0.2, true))
 -- state size: (ngf*8) x 4 x 4
@@ -90,9 +94,11 @@ netG:add(SpatialBatchNormalization(ngf * 8)):add(nn.LeakyReLU(0.2, true))
 netG:add(SpatialFullConvolution(ngf * 8, ngf * 4, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ngf * 4)):add(nn.ReLU(true))
 -- state size: (ngf*4) x 8 x 8
-netG:add(SpatialFullConvolution(ngf * 4, ngf * 4, 4, 4, 2, 2, 1, 1))
-netG:add(SpatialBatchNormalization(ngf * 4)):add(nn.ReLU(true))
--- state size: (ngf*4) x 16 x 16
+if opt.loadSize==128 then
+    netG:add(SpatialFullConvolution(ngf * 4, ngf * 4, 4, 4, 2, 2, 1, 1))
+    netG:add(SpatialBatchNormalization(ngf * 4)):add(nn.ReLU(true))
+    -- state size: (ngf*4) x 16 x 16
+end
 netG:add(SpatialFullConvolution(ngf * 4, ngf * 2, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ngf * 2)):add(nn.ReLU(true))
 -- state size: (ngf*2) x 32 x 32
@@ -120,9 +126,11 @@ netD:add(SpatialBatchNormalization(ndf * 4)):add(nn.LeakyReLU(0.2, true))
 netD:add(SpatialConvolution(ndf * 4, ndf * 8, 4, 4, 2, 2, 1, 1))
 netD:add(SpatialBatchNormalization(ndf * 8)):add(nn.LeakyReLU(0.2, true))
 -- state size: (ndf*8) x 8 x 8
-netD:add(SpatialConvolution(ndf * 8, ndf * 8, 4, 4, 2, 2, 1, 1))
-netD:add(SpatialBatchNormalization(ndf * 8)):add(nn.LeakyReLU(0.2, true))
--- state size: (ndf*8) x 4 x 4
+if opt.loadSize==128 then
+    netD:add(SpatialConvolution(ndf * 8, ndf * 8, 4, 4, 2, 2, 1, 1))
+    netD:add(SpatialBatchNormalization(ndf * 8)):add(nn.LeakyReLU(0.2, true))
+    -- state size: (ndf*8) x 4 x 4
+end
 netD:add(SpatialConvolution(ndf * 8, 1, 4, 4))
 netD:add(nn.Sigmoid())
 -- state size: 1 x 1 x 1
@@ -146,9 +154,11 @@ netA:add(SpatialBatchNormalization(ndf * 4)):add(nn.LeakyReLU(0.2, true))
 netA:add(SpatialConvolution(ndf * 4, ndf * 8, 4, 4, 2, 2, 1, 1))
 netA:add(SpatialBatchNormalization(ndf * 8)):add(nn.LeakyReLU(0.2, true))
 -- state size: (ndf*8) x 8 x 8
-netA:add(SpatialConvolution(ndf * 8, ndf * 8, 4, 4, 2, 2, 1, 1))
-netA:add(SpatialBatchNormalization(ndf * 8)):add(nn.LeakyReLU(0.2, true))
--- state size: (ndf*8) x 4 x 4
+if opt.loadSize==128 then
+    netA:add(SpatialConvolution(ndf * 8, ndf * 8, 4, 4, 2, 2, 1, 1))
+    netA:add(SpatialBatchNormalization(ndf * 8)):add(nn.LeakyReLU(0.2, true))
+    -- state size: (ndf*8) x 4 x 4
+end
 netA:add(SpatialConvolution(ndf * 8, 1, 4, 4))
 netA:add(nn.Sigmoid())
 -- state size: 1 x 1 x 1
@@ -179,14 +189,14 @@ local epoch_tm = torch.Timer()
 local tm = torch.Timer()
 local data_tm = torch.Timer()
 
-local input_img = torch.Tensor(opt.batchSize, 3, opt.fineSize, opt.fineSize)
-local ass_label = torch.Tensor(opt.batchSize, 3, opt.fineSize, opt.fineSize)
-local noass_label = torch.Tensor(opt.batchSize, 3, opt.fineSize, opt.fineSize)
+local input_img = torch.Tensor(opt.batchSize, 3, opt.loadSize, opt.loadSize)
+local ass_label = torch.Tensor(opt.batchSize, 3, opt.loadSize, opt.loadSize)
+local noass_label = torch.Tensor(opt.batchSize, 3, opt.loadSize, opt.loadSize)
 local label = torch.Tensor(opt.batchSize, 1)
 
-if opt.gpu > 0 then
+if opt.gpu >= 0 then
     require 'cunn'
-    cutorch.setDevice(opt.gpu)
+    cutorch.setDevice(opt.gpu+1)
     input_img = input_img:cuda()
     ass_label = ass_label:cuda()
     noass_label = noass_label:cuda()
@@ -213,7 +223,7 @@ local parametersG, gradParametersG = netG:getParameters()
 
 local function load_data()
     data_tm:reset(); data_tm:resume()
-    local batch = getbatch(128)
+    local batch = getbatch(opt.loadSize)
     input_img:copy(batch[{{},3,{},{},{}}]:squeeze())
     ass_label:copy(batch[{{},1,{},{},{}}]:squeeze())
     noass_label:copy(batch[{{},2,{},{},{}}]:squeeze())
@@ -324,7 +334,7 @@ end
 
 -- utility functions
 local function grid_png(nsample, imsize, img_arr, iter)
-    os.execute('mkdir -p save')
+    os.execute(string.format('mkdir -p save/%d', opt.loadSize))
     png_grid = torch.Tensor(3, nsample*imsize*3, nsample*imsize*3):zero()
     cnt = 1
     for h = 1, imsize*nsample*3, imsize*3 do
@@ -333,12 +343,12 @@ local function grid_png(nsample, imsize, img_arr, iter)
             cnt = cnt+1
         end
     end
-    image.save(string.format('save/%d.jpg', iter/opt.save_png_every), png_grid)
+    image.save(string.format('save/%d/%d.jpg', opt.loadSize, iter/opt.save_png_every), png_grid)
 end
 
 if opt.display then 
     disp = require 'display' 
-    disp.configure({hostname='10.64.81.227', port=8888})
+    disp.configure({hostname=opt.display_ip, port=opt.display_port})
 end
 
 
@@ -356,6 +366,8 @@ local disp_config = {
 }
 
 -- train
+logger = optim.Logger(string.format('%s_%d_result.log', opt.name, opt.loadSize))
+logger:setNames{'Epoch', 'Time', 'ErrG', 'ErrD', 'ErrA'}
 g_cnt = 0
 for epoch = 1, opt.nTotalEpoch do
     epoch_tm:reset()
@@ -383,23 +395,29 @@ for epoch = 1, opt.nTotalEpoch do
             print(string.format('Epoch: [%d][%8d/%8d] | Time: %.3f | DataTime:%.3f | Err_G: %.4f | Err_D: %.4f | Err_A: %.4f', epoch, i, trainlen, tm:time().real, data_tm:time().real, errG and errG or -1, errD and errD or -1, errA and errA or -1))
             table.insert(result, {g_cnt, errD, errG, errA})
             disp.plot(result, disp_config)
+            -- record using torch logger.
+            logger:add({epoch, tm:time().real, errG, errD, errA})
         end
         -- save png
         if g_cnt %  opt.save_png_every == 0 then
             local fake = netG:forward(input_img)
             local real = ass_label
             img_arr = torch.cat(fake,real,3):cat(input_img,3)
-            grid_png(3, 128, img_arr, i)
+            if opt.loadSize==128 then
+                grid_png(3, opt.loadSize, img_arr, i)
+            elseif opt.loadSize==64 then
+                grid_png(6, opt.loadSize, img_arr, i)
+            end
         end
         
     end
-    paths.mkdir('checkpoints')
+    os.execute(string.format('mkdir -p checkpoints/%d', opt.loadSize))
     parametersD, gradParametersD = nil, nil -- nil them to avoid spiking memory
     parametersA, gradParametersA = nil, nil -- nil them to avoid spiking memory
     parametersG, gradParametersG = nil, nil
-    torch.save('checkpoints/' .. opt.name .. '_' .. epoch .. '_net_G.t7', netG:clearState())
-    torch.save('checkpoints/' .. opt.name .. '_' .. epoch .. '_net_D.t7', netD:clearState())
-    torch.save('checkpoints/' .. opt.name .. '_' .. epoch .. '_net_A.t7', netA:clearState())
+    torch.save('checkpoints/'.. opt.loadSize .. '/' .. opt.name .. '_' .. epoch .. '_net_G.t7', netG:clearState())
+    torch.save('checkpoints/' .. opt.loadSize .. '/' .. opt.name .. '_' .. epoch .. '_net_D.t7', netD:clearState())
+    torch.save('checkpoints/' ..opt.loadSize .. '/' .. opt.name .. '_' .. epoch .. '_net_A.t7', netA:clearState())
     parametersD, gradParametersD = netD:getParameters() -- reflatten the params and get them
     parametersA, gradParametersA = netA:getParameters()
     parametersG, gradParametersG = netG:getParameters()

@@ -53,14 +53,23 @@ end
 function getbatch(imsize)
     batch = torch.Tensor(128,3,3,imsize,imsize):zero()
     local loadSize = {imsize,imsize}
+    
+    debug_tm = torch.Timer()
     for i = 1,128 do
+        --print('------------------')
+        debug_tm:reset()
+        debug_tm:resume()
         seed = torch.random(1, 100000) -- fix seed
         gen = torch.Generator()
         torch.manualSeed(gen, i*seed)
         r1 = torch.random(gen,1,cn)
         r2 = torch.random(gen,1,cn)
         r3 = torch.random(gen,1,mn[r1])
+        debug_tm:stop()
+        --print(string.format('step 1: %.3f',(debug_tm:time().real)))
 
+        debug_tm:reset()
+        debug_tm:resume()
         path1 = cloth_table[r1]
         path2 = cloth_table[r2]
         path3 = models_table[r1][r3]
@@ -68,7 +77,11 @@ function getbatch(imsize)
         img1 = loadImage(path1, loadSize)
         img2 = loadImage(path2, loadSize)
         img3 = loadImage(path3, loadSize)
+        debug_tm:stop()
+        --print(string.format('step 2: %.3f',(debug_tm:time().real)))
         
+        debug_tm:reset()
+        debug_tm:resume()
         -- preprocessing
         img1 = add_padding(img1, imsize)
         img2 = add_padding(img2, imsize)
@@ -77,6 +90,8 @@ function getbatch(imsize)
         batch[i][1] = img1
         batch[i][2] = img2
         batch[i][3] = img3
+        debug_tm:stop()
+        --print(string.format('step 3: %.3f',(debug_tm:time().real)))
     end
     return batch
 end
