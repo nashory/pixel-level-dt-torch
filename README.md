@@ -10,20 +10,39 @@ Torch implementation of "[Pixel-Level Domain Transfer](https://arxiv.org/pdf/160
 
 ## What is different from original repo?
 + Most importantly, BUG FIXED.
-+ The input size has been changed from 64 x 64 to 128 x 128.
-+ Network structure was slightly modified.
++ The input sizes of both 64 x 64 to 128 x 128 are supported.
++ Network structure was slightly modified acccording to input size.
++ A grid form of generated images are saved in png format.
++ Torch logger is added.
 
 ## Prerequisites
 + [Torch7](http://torch.ch/docs/getting-started.html#_)
 + [display](https://github.com/szym/display)
 
+## Dataset preparation
+to be updated...
 
 ## How to run?
-to be updated...
++ Start training:
+~~~
+(change training options in opts.lua file beforehand)
+python run.py
+python run.py & (if want to run in background)
+~~~
++ Run server for visualization:
+~~~
+(change server_ip and server_port options in opts.lua file beforehand)
+th server.lua
+th server.lua & (if want to run in background)
+~~~
+
+## Visualization (display)  
+You can see the generated images and loss graphs using web browser.  
+`https://<server_ip>:<port>`
 
 
 ## Experimental Results
-Result so far (it is stil being trained at this moment.)
+Result so far (it is still being trained at this moment.)
 
 |training|Final|  
 |---|---|  
@@ -31,11 +50,14 @@ Result so far (it is stil being trained at this moment.)
 |<img src="https://github.com/nashory/gif/blob/master/_gans/pixel-level-dt.gif?raw=true" width="400" height="400">|<img src="https://puu.sh/yc5qD/95a1553108.jpg" width="400" height="400">|
 
 
+## [!!] Trouble-shooting Multi-GPU Memory Allocation issue in torch
+to be updated...
+
 
 ## Acknowledgement
 + [@fxia22's original repo](https://github.com/fxia22/PixelDTGAN)
 
 
 ## Author
-MinchulShin / [@nashory](https://github.com/nashory)
+MinchulShin / [@nashory](https://github.com/nashory)  
 __Any insane bug reports or questions are welcome. (min.stellastra[at]gmail.com)  :-)__
