@@ -2,11 +2,10 @@
 -- last modified : 2017.09.01, nashory
 
 
-local opts = require '__0_dcgan.script.opts'
-local opt = opts.parse(arg)
+local opt = require 'opts'
 
 if opt.display then
-	os.execute(string.format('th -ldisplay.start %d %s', opt.display_server_port, opt.display_server_ip))
+	os.execute(string.format('th -ldisplay.start %d %s', opt.display_port, opt.display_ip))
 end
 
 
