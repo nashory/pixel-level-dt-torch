@@ -8,8 +8,8 @@ require 'data'
 opt = {
    dataset = 'folder',      
    batchSize = 128,
-   loadSize = 128,
-   fineSize = 128,
+   loadSize = 64,
+   fineSize = 64,
    ngf = 96,               -- #  of gen filters in first conv layer
    ndf = 96,               -- #  of discrim filters in first conv layer
    nThreads = 4,           -- #  of data loading threads to use
@@ -69,17 +69,14 @@ local SpatialFullConvolution = nn.SpatialFullConvolution
 
 
 local netG = nn.Sequential()
--- input is (nc) x 128 x 128
+-- input is (nc) x 64 x 64
 netG:add(SpatialConvolution(nc, ngf, 4, 4, 2, 2, 1, 1))
 netG:add(nn.LeakyReLU(0.2, true))
--- state size: (ngf) x 64 x 64
+-- state size: (ngf) x 32 x 32
 netG:add(SpatialConvolution(ngf, ngf*2, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ngf * 2)):add(nn.LeakyReLU(0.2, true))
--- state size: (ngf*2) x 32 x 32
+-- state size: (ngf*2) x 16 x 16
 netG:add(SpatialConvolution(ngf*2, ngf * 4, 4, 4, 2, 2, 1, 1))
-netG:add(SpatialBatchNormalization(ngf * 4)):add(nn.LeakyReLU(0.2, true))
--- state size: (ngf*4) x 16 x 16
-netG:add(SpatialConvolution(ngf * 4, ngf * 4, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ngf * 4)):add(nn.LeakyReLU(0.2, true))
 -- state size: (ngf*4) x 8 x 8
 netG:add(SpatialConvolution(ngf * 4, ngf * 8, 4, 4, 2, 2, 1, 1))
@@ -90,37 +87,31 @@ netG:add(SpatialBatchNormalization(ngf * 8)):add(nn.LeakyReLU(0.2, true))
 netG:add(SpatialFullConvolution(ngf * 8, ngf * 4, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ngf * 4)):add(nn.ReLU(true))
 -- state size: (ngf*4) x 8 x 8
-netG:add(SpatialFullConvolution(ngf * 4, ngf * 4, 4, 4, 2, 2, 1, 1))
-netG:add(SpatialBatchNormalization(ngf * 4)):add(nn.ReLU(true))
--- state size: (ngf*4) x 16 x 16
 netG:add(SpatialFullConvolution(ngf * 4, ngf * 2, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ngf * 2)):add(nn.ReLU(true))
--- state size: (ngf*2) x 32 x 32
+-- state size: (ngf*2) x 16 x 16
 netG:add(SpatialFullConvolution(ngf * 2, ngf, 4, 4, 2, 2, 1, 1))
 netG:add(SpatialBatchNormalization(ngf)):add(nn.ReLU(true))
--- state size: (ngf) x 64 x 64
+-- state size: (ngf) x 32 x 32
 netG:add(SpatialFullConvolution(ngf, nc, 4, 4, 2, 2, 1, 1))
 netG:add(nn.Tanh())
--- state size: (nc) x 128 x 128
+-- state size: (nc) x 64 x 64
 netG:apply(weights_init)
 
 
 
 local netD = nn.Sequential()
--- input is (nc) x 128 x 128
+-- input is (nc) x 64 x 64
 netD:add(SpatialConvolution(nc, ndf, 4, 4, 2, 2, 1, 1))
 netD:add(nn.LeakyReLU(0.2, true))
--- state size: (ndf) x 64 x 64
+-- state size: (ndf) x 32 x 32
 netD:add(SpatialConvolution(ndf, ndf * 2, 4, 4, 2, 2, 1, 1))
 netD:add(SpatialBatchNormalization(ndf * 2)):add(nn.LeakyReLU(0.2, true))
--- state size: (ndf*2) x 32 x 32
+-- state size: (ndf*2) x 16 x 16
 netD:add(SpatialConvolution(ndf * 2, ndf * 4, 4, 4, 2, 2, 1, 1))
 netD:add(SpatialBatchNormalization(ndf * 4)):add(nn.LeakyReLU(0.2, true))
--- state size: (ndf*4) x 16 x 16
+-- state size: (ndf*4) x 8 x 8
 netD:add(SpatialConvolution(ndf * 4, ndf * 8, 4, 4, 2, 2, 1, 1))
-netD:add(SpatialBatchNormalization(ndf * 8)):add(nn.LeakyReLU(0.2, true))
--- state size: (ndf*8) x 8 x 8
-netD:add(SpatialConvolution(ndf * 8, ndf * 8, 4, 4, 2, 2, 1, 1))
 netD:add(SpatialBatchNormalization(ndf * 8)):add(nn.LeakyReLU(0.2, true))
 -- state size: (ndf*8) x 4 x 4
 netD:add(SpatialConvolution(ndf * 8, 1, 4, 4))
@@ -133,20 +124,17 @@ netD:apply(weights_init)
 
 
 local netA = nn.Sequential()
--- input is (nc*2) x 128 x 128
+-- input is (nc*2) x 64 x 64
 netA:add(SpatialConvolution(nc*2, ndf, 4, 4, 2, 2, 1, 1))
 netA:add(nn.LeakyReLU(0.2, true))
--- state size: (ndf) x 64 x 64
+-- state size: (ndf) x 32 x 32
 netA:add(SpatialConvolution(ndf, ndf * 2, 4, 4, 2, 2, 1, 1))
 netA:add(SpatialBatchNormalization(ndf * 2)):add(nn.LeakyReLU(0.2, true))
--- state size: (ndf*2) x 32 x 32
+-- state size: (ndf*2) x 16 x 16
 netA:add(SpatialConvolution(ndf * 2, ndf * 4, 4, 4, 2, 2, 1, 1))
 netA:add(SpatialBatchNormalization(ndf * 4)):add(nn.LeakyReLU(0.2, true))
--- state size: (ndf*4) x 16 x 16
+-- state size: (ndf*4) x 8 x 8
 netA:add(SpatialConvolution(ndf * 4, ndf * 8, 4, 4, 2, 2, 1, 1))
-netA:add(SpatialBatchNormalization(ndf * 8)):add(nn.LeakyReLU(0.2, true))
--- state size: (ndf*8) x 8 x 8
-netA:add(SpatialConvolution(ndf * 8, ndf * 8, 4, 4, 2, 2, 1, 1))
 netA:add(SpatialBatchNormalization(ndf * 8)):add(nn.LeakyReLU(0.2, true))
 -- state size: (ndf*8) x 4 x 4
 netA:add(SpatialConvolution(ndf * 8, 1, 4, 4))
@@ -213,7 +201,7 @@ local parametersG, gradParametersG = netG:getParameters()
 
 local function load_data()
     data_tm:reset(); data_tm:resume()
-    local batch = getbatch(128)
+    local batch = getbatch(64)
     input_img:copy(batch[{{},3,{},{},{}}]:squeeze())
     ass_label:copy(batch[{{},1,{},{},{}}]:squeeze())
     noass_label:copy(batch[{{},2,{},{},{}}]:squeeze())
@@ -324,7 +312,7 @@ end
 
 -- utility functions
 local function grid_png(nsample, imsize, img_arr, iter)
-    os.execute('mkdir -p save')
+    os.execute('mkdir -p save_64/')
     png_grid = torch.Tensor(3, nsample*imsize*3, nsample*imsize*3):zero()
     cnt = 1
     for h = 1, imsize*nsample*3, imsize*3 do
@@ -333,12 +321,12 @@ local function grid_png(nsample, imsize, img_arr, iter)
             cnt = cnt+1
         end
     end
-    image.save(string.format('save/%d.jpg', iter/opt.save_png_every), png_grid)
+    image.save(string.format('save_64/%d.jpg', iter/opt.save_png_every), png_grid)
 end
 
 if opt.display then 
     disp = require 'display' 
-    disp.configure({hostname='10.64.81.227', port=8888})
+    disp.configure({hostname='10.64.81.227', port=8889})
 end
 
 
@@ -389,7 +377,7 @@ for epoch = 1, opt.nTotalEpoch do
             local fake = netG:forward(input_img)
             local real = ass_label
             img_arr = torch.cat(fake,real,3):cat(input_img,3)
-            grid_png(3, 128, img_arr, i)
+            grid_png(4, 64, img_arr, i)
         end
         
     end

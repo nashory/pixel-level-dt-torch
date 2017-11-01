@@ -1,7 +1,6 @@
 require 'image'
 
-loadSize = {128,128}
-function loadImage(path)
+function loadImage(path, loadSize)
    local input = image.load(path, 3, 'float')
    -- find the smaller dimension, and resize it to loadSize[2] (while keeping aspect ratio)
    local iW = input:size(3)
@@ -51,8 +50,9 @@ function add_padding(im, imsize)
 end
 
 
-function getbatch()
-    batch = torch.Tensor(128,3,3,128,128):zero()
+function getbatch(imsize)
+    batch = torch.Tensor(128,3,3,imsize,imsize):zero()
+    local loadSize = {imsize,imsize}
     for i = 1,128 do
         seed = torch.random(1, 100000) -- fix seed
         gen = torch.Generator()
@@ -65,14 +65,14 @@ function getbatch()
         path2 = cloth_table[r2]
         path3 = models_table[r1][r3]
 
-        img1 = loadImage(path1)
-        img2 = loadImage(path2)
-        img3 = loadImage(path3)
+        img1 = loadImage(path1, loadSize)
+        img2 = loadImage(path2, loadSize)
+        img3 = loadImage(path3, loadSize)
         
         -- preprocessing
-        img1 = add_padding(img1, 128)
-        img2 = add_padding(img2, 128)
-        img3 = add_padding(img3, 128)
+        img1 = add_padding(img1, imsize)
+        img2 = add_padding(img2, imsize)
+        img3 = add_padding(img3, imsize)
 
         batch[i][1] = img1
         batch[i][2] = img2
