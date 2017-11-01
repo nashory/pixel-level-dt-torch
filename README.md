@@ -1,7 +1,7 @@
 # pixel-level-dt-torch
 Torch implementation of "[Pixel-Level Domain Transfer](https://arxiv.org/pdf/1603.07442)", bug-fixed version of [repo](https://github.com/fxia22/PixelDTGAN)
 
-![image](https://puu.sh/y8eZp/53c12325b2.png)
+![image](https://github.com/fxia22/pldtgan/raw/master/gan.jpg)
 
 ## Note (IMPORTANT):
 + I found too many bugs in the [original repo](https://github.com/fxia22/PixelDTGAN), and the code was not running.
@@ -43,6 +43,8 @@ th server.lua & (if want to run in background)
 ## Visualization (display)  
 You can see the generated images and loss graphs using web browser.  
 `https://<server_ip>:<port>`
+(example)
+![image](https://puu.sh/y8eZp/53c12325b2.png)
 
 
 ## Experimental Results
