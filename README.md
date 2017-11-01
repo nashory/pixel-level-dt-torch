@@ -20,6 +20,9 @@ Torch implementation of "[Pixel-Level Domain Transfer](https://arxiv.org/pdf/160
 + [display](https://github.com/szym/display)
 
 ## Dataset preparation
++ Download LOOKUP dataset:  
+to be updated...
++ Prepare images:  
 to be updated...
 
 ## How to run?
@@ -51,7 +54,11 @@ Result so far (it is still being trained at this moment.)
 
 
 ## [!!] Trouble-shooting Multi-GPU Memory Allocation issue in torch
-to be updated...
+It seems that torch uses all memories across the GPUs if you use muti gpu(https://github.com/torch/cutorch/issues/180).
+To prevent this and use only single GPU, I gave 'UDA_VISIBLE_DEVICES=n' options when running lua script.
+If you are running with single GPU, or do not want to disable multi-gpu memory allocation of torch, remove this option in `run.py`
+
+__(e.g.) os.system('CUDA_VISIBLE_DEVICES=0 th ./main.lua') --> os.system('th ./main.lua')__
 
 
 ## Acknowledgement
