@@ -20,10 +20,11 @@ Torch implementation of "[Pixel-Level Domain Transfer](https://arxiv.org/pdf/160
 + [display](https://github.com/szym/display)
 
 ## Dataset preparation
-+ Download LOOKUP dataset:  
-to be updated...
-+ Prepare images:  
-to be updated...
++ (step 1) Download LOOKBOOK dataset: [Here](https://drive.google.com/file/d/0By_p0y157GxQU1dCRUU4SFNqaTQ/view?usp=sharing)
++ (step 2) Place 'lookbook.tar' zip file at root dir.
++ (step 3) run `sh setup.sh`
++ (step 4) preprocess dataset using `prepare_data.ipynb` (you may need to use jupyter notebook)
+
 
 ## How to run?
 + Start training:
