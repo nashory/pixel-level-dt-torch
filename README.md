@@ -24,8 +24,11 @@ to be updated...
 
 ## Experimental Results
 Result so far (it is stil being trained at this moment.)
-![image](https://puu.sh/yalEx/7313f3ede6.png)
-![image](https://puu.sh/yalFF/d5aa3ac205.jpg)
+
+|training|Final|  
+|---|---|  
+| condition: 128x128, 0.8 epoch | condition: 128x128, 0.8 epoch |
+|<img src="https://github.com/nashory/gif/blob/master/_gans/pixel-level-dt.gif?raw=true" width="400" height="400">|<img src="https://puu.sh/yc5qD/95a1553108.jpg" width="400" height="400">|
 
 
 
