@@ -50,12 +50,12 @@ function add_padding(im, imsize)
 end
 
 
-function getbatch(imsize)
-    batch = torch.Tensor(128,3,3,imsize,imsize):zero()
+function getbatch(batchSize, imsize)
+    batch = torch.Tensor(batchSize,3,3,imsize,imsize):zero()
     local loadSize = {imsize,imsize}
     
     debug_tm = torch.Timer()
-    for i = 1,128 do
+    for i = 1,batchSize do
         --print('------------------')
         debug_tm:reset()
         debug_tm:resume()

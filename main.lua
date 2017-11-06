@@ -196,7 +196,7 @@ local parametersG, gradParametersG = netG:getParameters()
 
 local function load_data()
     data_tm:reset(); data_tm:resume()
-    local batch = getbatch(opt.loadSize)
+    local batch = getbatch(opt.batchSize, opt.loadSize)
     input_img:copy(batch[{{},3,{},{},{}}]:squeeze())
     ass_label:copy(batch[{{},1,{},{},{}}]:squeeze())
     noass_label:copy(batch[{{},2,{},{},{}}]:squeeze())
@@ -395,8 +395,6 @@ for epoch = 1, opt.nTotalEpoch do
     parametersD, gradParametersD = netD:getParameters() -- reflatten the params and get them
     parametersA, gradParametersA = netA:getParameters()
     parametersG, gradParametersG = netG:getParameters()
-    print(('End of epoch %d / %d \t Time Taken: %.3f'):format(
-            epoch, opt.niter, epoch_tm:time().real))
 end
 
 

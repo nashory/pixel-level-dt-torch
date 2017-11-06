@@ -21,7 +21,7 @@ opt = {
    save_png_every = 10,    -- save png files every X iterations
 
    display_ip = '10.108.23.11',
-   display_port = 8889,
+   display_port = 8000,
 }
 
 return opt
